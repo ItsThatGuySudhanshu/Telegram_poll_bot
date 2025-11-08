@@ -1,0 +1,26 @@
+Telegram Poll Bot
+=================
+
+This repository contains a small Telegram poll bot. To run it safely you should store sensitive configuration (API tokens, DB URLs, etc.) in a local `.env` file rather than committing them into source control.
+
+Create your own .env file
+-------------------------
+
+1. Copy the example env file to a new local `.env` file:
+
+   cp .env.example .env
+
+2. Edit `.env` and replace placeholder values with your credentials.
+
+3. Do NOT commit your `.env` file. Add `.env` to your `.gitignore` if it's not already ignored.
+
+
+Create a zip file to upload to lambda
+-------------------------
+1. Run this command to download all the requirements: `pip install -r requirements.txt -t python`
+2. Run this command to zip everything up: `mkdir -p python && cp bot_v0.py python && zip -r ../lambda_function.zip .`
+
+
+Deployment
+-------------------------
+This is deployed in a Lambda function behind an API Gateway
