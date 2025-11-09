@@ -3,14 +3,14 @@ import random
 import time
 import json
 import os
-import dotenv
+from dotenv import load_dotenv
 from telethon import TelegramClient
 from telegram import Bot, Update
 from telegram.ext import ApplicationBuilder, MessageHandler, ChatMemberHandler, filters
 from telegram.request import HTTPXRequest
 import requests
 
-dotenv.load_dotenv()
+load_dotenv()
 
 # --- CONFIG ---
 API_ID = os.getenv("API_ID")
