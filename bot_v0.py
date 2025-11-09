@@ -153,6 +153,20 @@ def sample_http_request():
         print("Error during HTTP request:", e)
 
 
+def _run_async(coro):
+    loop = asyncio.new_event_loop()
+    try:
+        asyncio.set_event_loop(loop)
+        return loop.run_until_complete(coro)
+    finally:
+        # close the loop to release resources
+        # ensure pending tasks are cancelled (if any)
+        for t in asyncio.all_tasks(loop):
+            t.cancel()
+        loop.run_until_complete(asyncio.sleep(0))  # give cancellations a chance
+        loop.close()
+
+
 # --- MAIN FUNCTION ---
 async def process_update(event):
     """Process a single update from webhook"""
@@ -179,11 +193,11 @@ def lambda_handler(event, context):
 
     # Check if this is a scheduled event to send daily poll (from EventBridge)
     if event.get("source") == "aws.events" or "detail-type" in event:
-        asyncio.run(send_poll())
+        _run_async(send_poll())
         return {"statusCode": 200, "body": "Poll check completed"}
 
     # Otherwise, process webhook update from API Gateway
     body = json.loads(event["body"])
-    asyncio.run(process_update(body))
+    _run_async(process_update(body))
 
     return {"statusCode": 200, "body": "OK"}
