@@ -3,3 +3,4 @@ python/*
 *.zip
 .DS_Store
 __pycache__/
+lambda_function
