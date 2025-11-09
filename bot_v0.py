@@ -158,7 +158,7 @@ async def process_update(event):
     """Process a single update from webhook"""
     # Build application with shorter timeouts
     request_obj = HTTPXRequest(
-        connection_pool_size=1, connect_timeout=5.0, read_timeout=5.0
+        connection_pool_size=10, connect_timeout=5.0, read_timeout=5.0
     )
     app = ApplicationBuilder().token(BOT_TOKEN).request(request_obj).build()
     app.add_handler(MessageHandler(filters.ALL, track_message))
