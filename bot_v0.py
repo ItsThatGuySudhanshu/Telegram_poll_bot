@@ -191,6 +191,7 @@ def lambda_handler(event, context):
         connection_pool_size=10, connect_timeout=5.0, read_timeout=5.0
     )
 
+    global bot
     bot = Bot(token=BOT_TOKEN, request=request_obj)
 
     # Check if this is a scheduled event to send daily poll (from EventBridge)
