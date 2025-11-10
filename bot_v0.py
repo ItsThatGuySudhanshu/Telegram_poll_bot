@@ -26,10 +26,8 @@ AUTHORIZED_GROUP_IDS = os.getenv("AUTHORIZED_GROUP_IDS").split(
 # --- GLOBAL VARIABLES ---
 # Use /tmp directory for session file in Lambda (writable location)
 client = TelegramClient("/tmp/session", API_ID, API_HASH)
-
-# Create bot with shorter timeouts
-request = HTTPXRequest(connection_pool_size=1, connect_timeout=5.0, read_timeout=5.0)
-bot = Bot(token=BOT_TOKEN, request=request)
+# Bot will be initialized in lambda_handler
+bot = None
 
 
 # --- FETCH THE LATEST MESSAGES BEFORE DAILY SEND ---
@@ -135,7 +133,7 @@ async def send_poll():
         # Fetch last 1000 messages right before sending
         messages = await fetch_recent_messages(bot_id, chat_id)
         if messages:
-            await send_random_with_poll(chat_id, messages)
+            await send_random_with_poll(chat_id, messages, bot)
         # Delete messages list to free memory
         del messages
 
@@ -168,12 +166,10 @@ def _run_async(coro):
 
 
 # --- MAIN FUNCTION ---
-async def process_update(event):
+async def process_update(event, request_obj):
     """Process a single update from webhook"""
     # Build application with shorter timeouts
-    request_obj = HTTPXRequest(
-        connection_pool_size=10, connect_timeout=5.0, read_timeout=5.0
-    )
+
     app = ApplicationBuilder().token(BOT_TOKEN).request(request_obj).build()
     app.add_handler(MessageHandler(filters.ALL, track_message))
     app.add_handler(ChatMemberHandler(handle_new_chat))
@@ -191,6 +187,12 @@ def lambda_handler(event, context):
 
     sample_http_request()
 
+    request_obj = HTTPXRequest(
+        connection_pool_size=10, connect_timeout=5.0, read_timeout=5.0
+    )
+
+    bot = Bot(token=BOT_TOKEN, request=request_obj)
+
     # Check if this is a scheduled event to send daily poll (from EventBridge)
     if event.get("source") == "aws.events" or "detail-type" in event:
         _run_async(send_poll())
@@ -198,6 +200,6 @@ def lambda_handler(event, context):
 
     # Otherwise, process webhook update from API Gateway
     body = json.loads(event["body"])
-    _run_async(process_update(body))
+    _run_async(process_update(body, request_obj))
 
     return {"statusCode": 200, "body": "OK"}
