@@ -4,3 +4,4 @@ python/*
 .DS_Store
 __pycache__/
 lambda_function
+*.session*

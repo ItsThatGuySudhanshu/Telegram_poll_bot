@@ -25,7 +25,7 @@ AUTHORIZED_GROUP_IDS = os.getenv("AUTHORIZED_GROUP_IDS").split(
 
 # --- GLOBAL VARIABLES ---
 # Use /tmp directory for session file in Lambda (writable location)
-client = TelegramClient("/tmp/session", API_ID, API_HASH)
+client = TelegramClient("kylesux", API_ID, API_HASH)
 # Bot will be initialized in lambda_handler
 bot = None
 
